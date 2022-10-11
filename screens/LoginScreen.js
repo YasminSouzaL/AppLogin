@@ -14,9 +14,9 @@ const LoginScreen = () => {
             if(user) {
                 navigation.navigate("Home")
             }
-        })
-        return unsubscribe
-    }, [])
+        });
+        return unsubscribe;
+    }, []);
 
     const handleSingUp = () => {
         auth
