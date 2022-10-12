@@ -1,15 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {KeyboardAvoidingView, Text, StyleSheet, TextInput,View, TouchableOpacity, Image} from 'react-native';
-import { auth,db } from '../firebase';
-import { setDoc, doc } from 'firebase/firestore';
+import { auth } from '../firebase';
 import logo from '../assets/logo.png';
 import fundo from '../assets/fundo_tela.jpg';
 
 const LoginScreen = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [isDriver, setIsDriver] = React.useState(false);
 
     const navigation = useNavigation()
 
@@ -23,39 +21,23 @@ const LoginScreen = () => {
     }, []);
 
     const handleSingUp = () => {
-        createUserWithEmailAndPassword(auth, email, password)
-        .then(async (userCredential) => {
-            console.log("Logged in")
-            const user = userCredential.user;
-            await setDoc(doc(db, "users", user.uid), {
-                email: user.email,
-                isDriver: isDriver,
-            })
-            .then(() => {
-                console.log("Document successfully written!");
-            })
-            .catch((error) => {
-                console.error("Error writing document: ", error);
-            });
+        auth
+        .createUserWithEmailAndPassword(email,password)
+        .then(userCredentials => {
+            const user = userCredentials.user;
+            console.log('Registered with:',user.email);
         })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.log(errorCode, errorMessage);
-        });
+        .catch(error => alert(error.message))
     }
 
     const handleLogin = () => {
-        signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            console.log(user);
+        auth
+        .singInWithEmailAndPassword(email,password)
+        .then(userCredentials => {
+            const user = userCredentials.user;
+            console.log('Logged in with:',user.email);
         })
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.log(errorCode, errorMessage);
-        });
+        .catch(error => alert(error.message))
     }
 
     return (
@@ -93,10 +75,6 @@ const LoginScreen = () => {
                 >
                     <Text style={styles.buttonOutlineText}>Register</Text>    
                 </TouchableOpacity>
-                
-                <Button onPress={() => setIsDriver(!isDriver)} style={styles.button}>
-                        <ButtonText>Tipo de Usuário: {isDriver ? 'Motorista' : 'Passageiro'}</ButtonText>
-                </Button>
             </View>
 
         </KeyboardAvoidingView>
@@ -116,8 +94,7 @@ const styles = StyleSheet.create({
     },
     imagem: {
         width: '100%',
-        padding: 5,
-        marginTop: 5
+        padding:5
     },
     input:{
         backgroundColor: 'white',
